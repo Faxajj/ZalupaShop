@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}{{ site_name }}{% endblock %}</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛒</text></svg>">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: { colors: { brand: { DEFAULT: '#E60012', dark: '#B8000E', light: '#FF1A2B' }}}}
+    }
+  </script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
+
+  <!-- Top bar -->
+  <div class="bg-gray-900 text-gray-300 text-xs">
+    <div class="max-w-7xl mx-auto px-4 py-2 flex justify-between items-center">
+      <span>{{ t('top_phone') }}</span>
+      <div class="flex gap-4 items-center">
+        <a href="#" class="hidden sm:inline hover:text-white">{{ t('top_delivery') }}</a>
+        <a href="#" class="hidden sm:inline hover:text-white">{{ t('top_about') }}</a>
+        <!-- Language switcher -->
+        <div class="flex gap-1">
+          <a href="{{ url_for('set_lang', lang='es') }}"
+             class="px-2 py-0.5 rounded {{ 'bg-brand text-white' if lang == 'es' else 'hover:text-white' }}">🇪🇸 ES</a>
+          <a href="{{ url_for('set_lang', lang='gn') }}"
+             class="px-2 py-0.5 rounded {{ 'bg-brand text-white' if lang == 'gn' else 'hover:text-white' }}">🇵🇾 GN</a>
+        </div>
+        <!-- Currency switcher -->
+        <div class="flex gap-1">
+          <a href="{{ url_for('set_currency', cur='PYG') }}"
+             class="px-2 py-0.5 rounded {{ 'bg-brand text-white' if currency == 'PYG' else 'hover:text-white' }}">₲ PYG</a>
+          <a href="{{ url_for('set_currency', cur='USD') }}"
+             class="px-2 py-0.5 rounded {{ 'bg-brand text-white' if currency == 'USD' else 'hover:text-white' }}">$ USD</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="bg-brand text-white shadow-lg sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex items-center gap-4">
+      <a href="{{ url_for('index') }}" class="flex items-center gap-2 shrink-0">
+        <div class="bg-white text-brand w-11 h-11 rounded-lg grid place-items-center text-2xl font-black">M</div>
+        <div class="leading-tight">
+          <div class="text-2xl font-black">{{ site_name }}</div>
+          <div class="text-[10px] uppercase tracking-widest opacity-80">{{ t('brand_tagline') }}</div>
+        </div>
+      </a>
+
+      <form action="{{ url_for('index') }}" method="get" class="flex-1 max-w-2xl relative hidden md:block">
+        <input name="q" value="{{ q or '' }}" placeholder="{{ t('search_placeholder') }}"
+               class="w-full pl-5 pr-14 py-2.5 rounded-lg text-gray-900 focus:outline-none focus:ring-4 focus:ring-white/30">
+        <button class="absolute right-0 top-0 h-full px-5 bg-gray-900 hover:bg-black rounded-r-lg">🔍</button>
+      </form>
+
+      <div class="flex-1 md:hidden"></div>
+
+      <div class="flex items-center gap-2">
+        {% if current_user.is_authenticated %}
+          <a href="{{ url_for('profile') }}" class="flex items-center gap-2 px-3 py-2 rounded hover:bg-white/10 text-sm">
+            <span class="text-xl">👤</span>
+            <span class="hidden sm:inline font-semibold">{{ current_user.username }}</span>
+          </a>
+          {% if current_user.is_admin %}
+            <a href="{{ url_for('admin_dashboard') }}" class="bg-yellow-400 text-gray-900 px-3 py-2 rounded font-bold text-xs uppercase">{{ t('admin_panel') }}</a>
+          {% endif %}
+          <a href="{{ url_for('logout') }}" class="hidden sm:block px-3 py-2 hover:bg-white/10 rounded text-sm">{{ t('logout') }}</a>
+        {% else %}
+          <a href="{{ url_for('login') }}" class="px-3 py-2 hover:bg-white/10 rounded text-sm font-semibold">{{ t('login') }}</a>
+          <a href="{{ url_for('register') }}" class="hidden sm:block bg-white text-brand px-4 py-2 rounded font-bold text-sm hover:bg-gray-100">{{ t('register') }}</a>
+        {% endif %}
+        <button id="open-cart" class="relative p-2 hover:bg-white/10 rounded">
+          <span class="text-2xl">🛒</span>
+          <span id="cart-badge" class="hidden absolute -top-0.5 -right-0.5 bg-yellow-400 text-gray-900 text-[10px] font-black rounded-full w-5 h-5 grid place-items-center">0</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="md:hidden bg-brand-dark px-4 py-3">
+      <form action="{{ url_for('index') }}" method="get" class="relative">
+        <input name="q" value="{{ q or '' }}" placeholder="{{ t('search_placeholder') }}"
+               class="w-full pl-4 pr-12 py-2 rounded text-gray-900 text-sm focus:outline-none">
+        <button class="absolute right-0 top-0 h-full px-4 bg-gray-900 rounded-r">🔍</button>
+      </form>
+    </div>
+  </header>
+
+  <!-- Flash -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="max-w-7xl mx-auto w-full px-4 pt-4 space-y-2">
+        {% for cat, msg in messages %}
+          <div class="px-4 py-3 rounded-lg text-sm font-medium
+                      {{ 'bg-green-100 text-green-800 border border-green-200' if cat == 'success'
+                         else 'bg-red-100 text-red-800 border border-red-200' }}">
+            {{ msg }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <main class="flex-1">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-900 text-gray-300 mt-12">
+    <div class="max-w-7xl mx-auto px-4 py-10 grid md:grid-cols-4 gap-8">
+      <div>
+        <div class="text-2xl font-black text-white mb-2">{{ site_name }}</div>
+        <p class="text-sm opacity-70">{{ t('footer_tagline') }}</p>
+      </div>
+      <div>
+        <h4 class="text-white font-bold mb-3 uppercase text-sm">{{ t('footer_customers') }}</h4>
+        <ul class="space-y-2 text-sm opacity-80">
+          <li><a href="#" class="hover:text-white">{{ t('footer_delivery') }}</a></li>
+          <li><a href="#" class="hover:text-white">{{ t('footer_payment') }}</a></li>
+          <li><a href="#" class="hover:text-white">{{ t('footer_returns') }}</a></li>
+          <li><a href="#" class="hover:text-white">{{ t('footer_warranty') }}</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-white font-bold mb-3 uppercase text-sm">{{ t('footer_company') }}</h4>
+        <ul class="space-y-2 text-sm opacity-80">
+          <li><a href="#" class="hover:text-white">{{ t('footer_about') }}</a></li>
+          <li><a href="#" class="hover:text-white">{{ t('footer_contact') }}</a></li>
+          <li><a href="#" class="hover:text-white">{{ t('footer_jobs') }}</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-white font-bold mb-3 uppercase text-sm">{{ t('footer_contact_title') }}</h4>
+        <p class="text-sm opacity-80">📞 +595 9XX XXX XXX<br>📧 info@mvideoshop.py<br>📍 Asunción, Paraguay</p>
+      </div>
+    </div>
+    <div class="border-t border-white/10 py-4 text-center text-xs opacity-60">
+      © {{ current_year }} {{ site_name }} — {{ t('rights') }}
+    </div>
+  </footer>
+
+  <!-- Cart drawer -->
+  <div id="cart-overlay" class="hidden fixed inset-0 bg-black/60 z-50"></div>
+  <aside id="cart-drawer" class="fixed top-0 right-0 h-full w-full sm:w-[420px] bg-white z-50 shadow-2xl transform translate-x-full transition-transform duration-300 flex flex-col">
+    <div class="bg-brand text-white px-5 py-4 flex justify-between items-center">
+      <h3 class="text-xl font-bold">{{ t('cart_title') }}</h3>
+      <button id="close-cart" class="text-3xl leading-none hover:opacity-70">×</button>
+    </div>
+    <div id="cart-items" class="flex-1 overflow-y-auto p-5 space-y-3"></div>
+    <div class="border-t p-5 space-y-3 bg-gray-50">
+      <div class="flex justify-between font-bold text-lg">
+        <span>{{ t('cart_total') }}:</span>
+        <span id="cart-total" class="text-brand text-2xl">{{ fmt_primary(0) }}</span>
+      </div>
+      <button id="checkout-btn" class="w-full bg-brand hover:bg-brand-dark text-white font-bold py-3 rounded-lg transition">{{ t('checkout_btn') }}</button>
+      <button id="clear-cart-btn" class="w-full text-sm text-gray-500 hover:text-brand">{{ t('clear_cart') }}</button>
+    </div>
+  </aside>
+
+  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-5 py-3 rounded-full shadow-lg transition-all duration-300 opacity-0 translate-y-4 z-[70] font-semibold"></div>
+
+  <!-- Pass strings and currency info to JS -->
+  <script>
+    window.APP = {
+      lang: "{{ lang }}",
+      currency: "{{ currency }}",
+      usdRate: {{ 7300 }},
+      strings: {
+        empty: "{{ t('cart_empty') }}",
+        added: "{{ t('cart_added') }}",
+        confirmClear: "{{ t('cart_confirm_clear') }}",
+        loginFirst: "{{ t('cart_login_first') }}",
+        error: "{{ t('cart_error') }}",
+        orderPlaced: "{{ t('order_placed') }}",
+        remove: "{{ t('remove') }}",
+      }
+    };
+  </script>
+  <script src="{{ url_for('static', filename='js/cart.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

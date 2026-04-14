@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% block title %}{{ (t('edit_product') if product else t('new_product')) }} · {{ site_name }}{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-8">
+
+  <a href="{{ url_for('admin_products') }}" class="text-gray-500 hover:text-brand text-sm">{{ t('back_to_products') }}</a>
+  <h1 class="text-3xl font-black mt-2 mb-6">
+    {{ t('edit_product') if product else t('new_product') }}
+  </h1>
+
+  <form method="post" enctype="multipart/form-data" class="bg-white rounded-2xl shadow-sm p-6 space-y-6">
+
+    <div class="grid md:grid-cols-2 gap-4">
+      <div>
+        <label class="block text-sm font-semibold mb-1">{{ t('sku_label') }}</label>
+        <input type="text" name="sku" required value="{{ product.sku if product else '' }}"
+               class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-brand">
+      </div>
+      <div>
+        <label class="block text-sm font-semibold mb-1">{{ t('category_label') }}</label>
+        <input type="text" name="category" value="{{ product.category if product else '' }}" placeholder="Celulares"
+               class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-brand">
+      </div>
+    </div>
+
+    <!-- Name ES / GN -->
+    <div class="grid md:grid-cols-2 gap-4">
+      <div>
+        <label class="block text-sm font-semibold mb-1">{{ t('name_label_es') }}</label>
+        <input type="text" name="name" required value="{{ product.name if product else '' }}"
+               class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-brand">
+      </div>
+      <div>
+        <label class="block text-sm font-semibold mb-1">{{ t('name_label_gn') }}</label>
+        <input type="text" name="name_gn" value="{{ product.name_gn if product and product.name_gn else '' }}"
+               class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-brand">
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-4">
+      <div>
+        <label class="block text-sm font-semibold mb-1">{{ t('price_label') }}</label>
+        <input type="number" name="price" required step="1" value="{{ product.price|int if product else '' }}"
+               class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-brand">
+      </div>
+      <div>
+        <label class="block text-sm font-semibold mb-1">{{ t('old_price_label') }}</label>
+        <input type="number" name="old_price" step="1" value="{{ product.old_price|int if product and product.old_price else '' }}"
+               class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-brand">
+      </div>
+      <div>
+        <label class="block text-sm font-semibold mb-1">{{ t('stock_label') }}</label>
+        <input type="number" name="stock" value="{{ product.stock if product else 100 }}"
+               class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-brand">
+      </div>
+    </div>
+
+    <!-- Description ES / GN -->
+    <div class="grid md:grid-cols-2 gap-4">
+      <div>
+        <label class="block text-sm font-semibold mb-1">{{ t('description_label_es') }}</label>
+        <textarea name="description" rows="5"
+                  class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-brand">{{ product.description if product else '' }}</textarea>
+      </div>
+      <div>
+        <label class="block text-sm font-semibold mb-1">{{ t('description_label_gn') }}</label>
+        <textarea name="description_gn" rows="5"
+                  class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-brand">{{ product.description_gn if product else '' }}</textarea>
+      </div>
+    </div>
+
+    <!-- Specs -->
+    <div>
+      <label class="block text-sm font-semibold mb-2">{{ t('specs_label') }}</label>
+      <div id="specs-container" class="space-y-2">
+        {% if product and product.specs %}
+          {% for s in product.specs %}
+            <div class="flex gap-2">
+              <input type="text" name="spec_key[]" value="{{ s.key }}" placeholder="Marca"
+                     class="flex-1 px-3 py-2 border border-gray-200 rounded-lg">
+              <input type="text" name="spec_value[]" value="{{ s.value }}" placeholder="Apple"
+                     class="flex-1 px-3 py-2 border border-gray-200 rounded-lg">
+              <button type="button" onclick="this.parentElement.remove()" class="bg-red-100 text-red-600 px-3 rounded-lg">×</button>
+            </div>
+          {% endfor %}
+        {% endif %}
+      </div>
+      <button type="button" onclick="addSpec()" class="mt-2 text-brand font-semibold text-sm hover:underline">{{ t('add_spec') }}</button>
+    </div>
+
+    <!-- Existing images -->
+    {% if product and product.images %}
+      <div>
+        <label class="block text-sm font-semibold mb-2">{{ t('existing_photos') }}</label>
+        <div class="grid grid-cols-4 md:grid-cols-6 gap-3">
+          {% for img in product.images %}
+            <div class="relative group">
+              <img src="{{ img.url }}" class="w-full aspect-square object-cover rounded-lg bg-gray-100">
+              <form method="post" action="{{ url_for('admin_image_delete', img_id=img.id) }}"
+                    onsubmit="return confirm('{{ t('confirm_delete_photo') }}')"
+                    class="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition">
+                <button class="bg-red-500 text-white w-7 h-7 rounded-full text-sm">×</button>
+              </form>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+
+    <!-- Upload new -->
+    <div>
+      <label class="block text-sm font-semibold mb-1">{{ t('upload_photos') }}</label>
+      <input type="file" name="images" multiple accept="image/*"
+             class="w-full px-4 py-2.5 border border-gray-200 rounded-lg file:mr-3 file:border-0 file:bg-brand file:text-white file:px-4 file:py-2 file:rounded cursor-pointer">
+      <p class="text-xs text-gray-400 mt-1">{{ t('upload_hint') }}</p>
+    </div>
+
+    <!-- External URLs -->
+    <div>
+      <label class="block text-sm font-semibold mb-2">{{ t('add_urls') }}</label>
+      <div id="urls-container" class="space-y-2"></div>
+      <button type="button" onclick="addUrl()" class="mt-2 text-brand font-semibold text-sm hover:underline">{{ t('add_url') }}</button>
+    </div>
+
+    <div class="flex gap-3 pt-4 border-t">
+      <button type="submit" class="flex-1 bg-brand hover:bg-brand-dark text-white font-bold py-3 rounded-lg">{{ t('save') }}</button>
+      <a href="{{ url_for('admin_products') }}" class="px-6 py-3 bg-gray-100 hover:bg-gray-200 rounded-lg font-semibold">{{ t('cancel') }}</a>
+    </div>
+  </form>
+</div>
+
+<script>
+function addSpec() {
+  const c = document.getElementById('specs-container');
+  const d = document.createElement('div');
+  d.className = 'flex gap-2';
+  d.innerHTML = `
+    <input type="text" name="spec_key[]" placeholder="Marca" class="flex-1 px-3 py-2 border border-gray-200 rounded-lg">
+    <input type="text" name="spec_value[]" placeholder="Apple" class="flex-1 px-3 py-2 border border-gray-200 rounded-lg">
+    <button type="button" onclick="this.parentElement.remove()" class="bg-red-100 text-red-600 px-3 rounded-lg">×</button>
+  `;
+  c.appendChild(d);
+}
+function addUrl() {
+  const c = document.getElementById('urls-container');
+  const d = document.createElement('div');
+  d.className = 'flex gap-2';
+  d.innerHTML = `
+    <input type="url" name="image_url[]" placeholder="https://example.com/photo.jpg" class="flex-1 px-3 py-2 border border-gray-200 rounded-lg">
+    <button type="button" onclick="this.parentElement.remove()" class="bg-red-100 text-red-600 px-3 rounded-lg">×</button>
+  `;
+  c.appendChild(d);
+}
+</script>
+{% endblock %}

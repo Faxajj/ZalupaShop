@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}{{ loc_name(product) }} · {{ site_name }}{% endblock %}
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-6">
+
+  <nav class="text-sm text-gray-500 mb-4">
+    <a href="{{ url_for('index') }}" class="hover:text-brand">{{ t('breadcrumb_home') }}</a>
+    <span class="mx-2">/</span>
+    <a href="{{ url_for('index', cat=product.category) }}" class="hover:text-brand">{{ product.category }}</a>
+    <span class="mx-2">/</span>
+    <span class="text-gray-700">{{ loc_name(product) }}</span>
+  </nav>
+
+  <div class="grid md:grid-cols-2 gap-8 bg-white rounded-2xl p-6 shadow-sm">
+
+    <!-- Gallery -->
+    <div>
+      <div class="aspect-square bg-gray-50 rounded-xl overflow-hidden mb-4">
+        {% if product.images %}
+          <img id="main-image" src="{{ product.images[0].url }}" alt="{{ loc_name(product) }}"
+               class="w-full h-full object-cover">
+        {% else %}
+          <div class="w-full h-full grid place-items-center text-gray-300 text-8xl">📦</div>
+        {% endif %}
+      </div>
+      {% if product.images|length > 1 %}
+        <div class="grid grid-cols-5 gap-2">
+          {% for img in product.images %}
+            <button onclick="document.getElementById('main-image').src='{{ img.url }}'"
+                    class="aspect-square bg-gray-50 rounded-lg overflow-hidden border-2 border-transparent hover:border-brand">
+              <img src="{{ img.url }}" class="w-full h-full object-cover" alt="">
+            </button>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Info -->
+    <div>
+      <div class="text-xs text-gray-400 uppercase tracking-wider">{{ product.category }} · {{ t('article') }} {{ product.sku }}</div>
+      <h1 class="text-2xl md:text-3xl font-black mt-2">{{ loc_name(product) }}</h1>
+
+      <div class="mt-3 flex items-center gap-2">
+        <div class="text-yellow-400">★★★★★</div>
+        <span class="text-sm text-gray-500">(128 {{ t('reviews') }})</span>
+      </div>
+
+      <div class="mt-5">
+        <div class="flex items-baseline gap-3">
+          <span class="text-4xl font-black text-brand">{{ fmt_primary(product.price) }}</span>
+          {% if product.old_price and product.old_price > product.price %}
+            <span class="text-xl text-gray-400 line-through">{{ fmt_primary(product.old_price) }}</span>
+            <span class="bg-brand text-white text-xs font-bold px-2 py-1 rounded">
+              -{{ ((1 - product.price / product.old_price) * 100) | round | int }}%
+            </span>
+          {% endif %}
+        </div>
+        <div class="text-sm text-gray-500 mt-1">{{ fmt_secondary(product.price) }}</div>
+      </div>
+
+      <div class="mt-3">
+        {% if product.stock > 0 %}
+          <span class="text-green-600 text-sm">✓ {{ t('in_stock') }} — {{ product.stock }} {{ t('pieces') }}</span>
+        {% else %}
+          <span class="text-red-600 text-sm">✗ {{ t('out_of_stock') }}</span>
+        {% endif %}
+      </div>
+
+      <div class="mt-6 flex gap-3">
+        <button
+          onclick="Cart.add({{ product.id }}, '{{ loc_name(product)|e }}', {{ product.price }}, '{{ product.main_image.url if product.main_image else '' }}'); Cart.open()"
+          class="flex-1 bg-brand hover:bg-brand-dark text-white font-bold py-4 rounded-lg transition text-lg">
+          🛒 {{ t('add_to_cart_big') }}
+        </button>
+        <button class="px-5 bg-gray-100 hover:bg-gray-200 rounded-lg text-2xl">♡</button>
+      </div>
+
+      <div class="mt-6 space-y-2 text-sm text-gray-600 border-t pt-5">
+        <div class="flex items-center gap-3"><span class="text-xl">🚚</span> {{ t('delivery_info') }}</div>
+        <div class="flex items-center gap-3"><span class="text-xl">🛡️</span> {{ t('warranty_info') }}</div>
+        <div class="flex items-center gap-3"><span class="text-xl">↩️</span> {{ t('return_info') }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Specs + Description -->
+  <div class="grid md:grid-cols-2 gap-6 mt-6">
+    {% if product.specs %}
+    <div class="bg-white rounded-2xl p-6 shadow-sm">
+      <h2 class="text-xl font-bold mb-4">{{ t('specifications') }}</h2>
+      <table class="w-full text-sm">
+        <tbody>
+          {% for s in product.specs %}
+            <tr class="border-b border-gray-100 last:border-0">
+              <td class="py-3 text-gray-500 pr-4">{{ s.key }}</td>
+              <td class="py-3 font-semibold text-right">{{ s.value }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+
+    <div class="bg-white rounded-2xl p-6 shadow-sm">
+      <h2 class="text-xl font-bold mb-4">{{ t('description') }}</h2>
+      <p class="text-gray-700 leading-relaxed whitespace-pre-line">{{ loc_desc(product) or t('no_description') }}</p>
+    </div>
+  </div>
+</div>
+{% endblock %}
