@@ -1,0 +1,20 @@
+<%- include('partials/header') %>
+
+<h1>Каталог товаров</h1>
+<p>Добро пожаловать в Mvideo Shop. Выбирайте технику по выгодной цене.</p>
+
+<div class="products-grid">
+  <% products.forEach((product) => { %>
+    <article class="card">
+      <img src="<%= product.main_image || '/uploads/placeholder-tv.svg' %>" alt="<%= product.name %>" class="card-image" />
+      <div class="card-body">
+        <h3><%= product.name %></h3>
+        <p class="meta"><%= product.category || 'Без категории' %></p>
+        <p class="price"><%= Number(product.price).toLocaleString('ru-RU') %> ₽</p>
+        <a class="btn" href="/product/<%= product.id %>">Подробнее</a>
+      </div>
+    </article>
+  <% }) %>
+</div>
+
+<%- include('partials/footer') %>
