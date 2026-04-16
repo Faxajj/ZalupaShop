@@ -5,7 +5,7 @@ const { get, run } = require('../models/db');
 const router = express.Router();
 
 router.get('/register', (_req, res) => {
-  res.render('register', { title: 'Mvideo Shop — Регистрация', error: null });
+  res.render('register', { title: 'mvideo shop — Регистрация', error: null });
 });
 
 router.post('/register', async (req, res, next) => {
@@ -13,7 +13,7 @@ router.post('/register', async (req, res, next) => {
     const { email, password } = req.body;
     if (!email || !password) {
       return res.render('register', {
-        title: 'Mvideo Shop — Регистрация',
+        title: 'mvideo shop — Регистрация',
         error: 'Email и пароль обязательны.'
       });
     }
@@ -21,7 +21,7 @@ router.post('/register', async (req, res, next) => {
     const existingUser = await get('SELECT id FROM users WHERE email = ?', [email]);
     if (existingUser) {
       return res.render('register', {
-        title: 'Mvideo Shop — Регистрация',
+        title: 'mvideo shop — Регистрация',
         error: 'Пользователь с таким email уже существует.'
       });
     }
@@ -40,7 +40,7 @@ router.post('/register', async (req, res, next) => {
 });
 
 router.get('/login', (_req, res) => {
-  res.render('login', { title: 'Mvideo Shop — Вход', error: null });
+  res.render('login', { title: 'mvideo shop — Вход', error: null });
 });
 
 router.post('/login', async (req, res, next) => {
@@ -50,7 +50,7 @@ router.post('/login', async (req, res, next) => {
     const user = await get('SELECT * FROM users WHERE email = ?', [email]);
     if (!user) {
       return res.render('login', {
-        title: 'Mvideo Shop — Вход',
+        title: 'mvideo shop — Вход',
         error: 'Неверный email или пароль.'
       });
     }
@@ -58,7 +58,7 @@ router.post('/login', async (req, res, next) => {
     const valid = await bcrypt.compare(password, user.password_hash);
     if (!valid) {
       return res.render('login', {
-        title: 'Mvideo Shop — Вход',
+        title: 'mvideo shop — Вход',
         error: 'Неверный email или пароль.'
       });
     }

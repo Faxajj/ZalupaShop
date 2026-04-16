@@ -24,7 +24,7 @@ router.get('/product/:id', async (req, res, next) => {
     }
 
     return res.render('product', {
-      title: `Mvideo Shop — ${product.name}`,
+      title: `mvideo shop — ${product.name}`,
       product,
       images,
       specs

@@ -32,7 +32,7 @@ router.get('/admin', ensureAdmin, async (_req, res, next) => {
   try {
     const products = await all('SELECT * FROM products ORDER BY id DESC');
     return res.render('admin/dashboard', {
-      title: 'Mvideo Shop — Админка',
+      title: 'mvideo shop — Админка',
       products
     });
   } catch (error) {
@@ -42,7 +42,7 @@ router.get('/admin', ensureAdmin, async (_req, res, next) => {
 
 router.get('/admin/products/new', ensureAdmin, (_req, res) => {
   res.render('admin/product-form', {
-    title: 'Mvideo Shop — Новый товар',
+    title: 'mvideo shop — Новый товар',
     product: null,
     images: [],
     action: '/admin/products/new',
@@ -55,7 +55,7 @@ router.post('/admin/products/new', ensureAdmin, upload.array('images', 3), async
     const { name, price, description, category, article, specs } = req.body;
     if (!name || !price) {
       return res.render('admin/product-form', {
-        title: 'Mvideo Shop — Новый товар',
+        title: 'mvideo shop — Новый товар',
         product: req.body,
         images: [],
         action: '/admin/products/new',
@@ -96,7 +96,7 @@ router.get('/admin/products/:id/edit', ensureAdmin, async (req, res, next) => {
     }
     const images = await all('SELECT * FROM product_images WHERE product_id = ?', [req.params.id]);
     return res.render('admin/product-form', {
-      title: 'Mvideo Shop — Редактирование товара',
+      title: 'mvideo shop — Редактирование товара',
       product,
       images,
       action: `/admin/products/${req.params.id}/edit`,
@@ -177,7 +177,7 @@ router.get('/admin/users', ensureAdmin, async (_req, res, next) => {
   try {
     const users = await all('SELECT id, email, role, created_at FROM users ORDER BY id DESC');
     return res.render('admin/users', {
-      title: 'Mvideo Shop — Пользователи',
+      title: 'mvideo shop — Пользователи',
       users
     });
   } catch (error) {

@@ -1,4 +1,4 @@
-# Mvideo Shop
+# mvideo shop
 
 Полностью рабочий интернет-магазин на стеке **Node.js + Express + SQLite + EJS + Multer**.
 
@@ -21,7 +21,7 @@
 ## Структура проекта
 
 ```text
-
+mvideo-shop/
 ├── app.js
 ├── package.json
 ├── .env.example
@@ -95,7 +95,7 @@
 ```bash
 git init
 git add .
-git commit -m "Initial Mvideo Shop implementation"
+git commit -m "Initial mvideo shop implementation"
 git branch -M main
 git remote add origin <YOUR_GITHUB_REPO_URL>
 git push -u origin main

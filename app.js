@@ -67,7 +67,7 @@ app.use((err, req, res, _next) => {
     await initDb();
     app.listen(PORT, () => {
       // eslint-disable-next-line no-console
-      console.log(`Mvideo Shop started: http://localhost:${PORT}`);
+      console.log(`mvideo shop started: http://localhost:${PORT}`);
     });
   } catch (error) {
     // eslint-disable-next-line no-console

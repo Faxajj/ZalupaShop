@@ -17,7 +17,7 @@ router.get('/', async (req, res, next) => {
     `);
 
     res.render('home', {
-      title: 'Mvideo Shop — Главная',
+      title: 'mvideo shop — Главная',
       products
     });
   } catch (error) {
@@ -29,7 +29,7 @@ router.get('/profile', ensureAuthenticated, async (req, res, next) => {
   try {
     const user = await get('SELECT id, email, role, created_at FROM users WHERE id = ?', [req.session.user.id]);
     res.render('profile', {
-      title: 'Mvideo Shop — Профиль',
+      title: 'mvideo shop — Профиль',
       profile: user
     });
   } catch (error) {
