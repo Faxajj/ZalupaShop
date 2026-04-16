@@ -21,7 +21,7 @@
 ## Структура проекта
 
 ```text
-mvideo-shop/
+
 ├── app.js
 ├── package.json
 ├── .env.example
