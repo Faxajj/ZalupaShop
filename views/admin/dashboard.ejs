@@ -1,0 +1,27 @@
+<%- include('../partials/header') %>
+<h1>Админ-панель</h1>
+<p><a class="btn" href="/admin/products/new">Добавить товар</a></p>
+<table class="table">
+  <thead>
+    <tr>
+      <th>ID</th><th>Название</th><th>Цена</th><th>Категория</th><th>Действия</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% products.forEach((p) => { %>
+      <tr>
+        <td><%= p.id %></td>
+        <td><%= p.name %></td>
+        <td><%= Number(p.price).toLocaleString('ru-RU') %> ₽</td>
+        <td><%= p.category || '-' %></td>
+        <td class="actions">
+          <a class="btn btn-small" href="/admin/products/<%= p.id %>/edit">Редактировать</a>
+          <form method="post" action="/admin/products/<%= p.id %>/delete" class="inline-form">
+            <button class="btn btn-small danger" type="submit">Удалить</button>
+          </form>
+        </td>
+      </tr>
+    <% }) %>
+  </tbody>
+</table>
+<%- include('../partials/footer') %>

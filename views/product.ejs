@@ -1,0 +1,35 @@
+<%- include('partials/header') %>
+
+<section class="product-page">
+  <div>
+    <h1><%= product.name %></h1>
+    <p class="price big"><%= Number(product.price).toLocaleString('ru-RU') %> ₽</p>
+    <p><strong>Категория:</strong> <%= product.category || '-' %></p>
+    <p><strong>Артикул:</strong> <%= product.article || '-' %></p>
+    <p><%= product.description || 'Описание отсутствует.' %></p>
+    <button class="btn" onclick="alert('Корзина будет подключена позже')">Добавить в корзину</button>
+  </div>
+
+  <div>
+    <h3>Фото</h3>
+    <div class="gallery">
+      <% images.forEach((img) => { %>
+        <img src="<%= img.image_path %>" alt="Фото <%= product.name %>" />
+      <% }) %>
+    </div>
+  </div>
+</section>
+
+<h3>Характеристики</h3>
+<table class="specs-table">
+  <tbody>
+    <% Object.keys(specs).forEach((key) => { %>
+      <tr>
+        <td><%= key %></td>
+        <td><%= specs[key] %></td>
+      </tr>
+    <% }) %>
+  </tbody>
+</table>
+
+<%- include('partials/footer') %>

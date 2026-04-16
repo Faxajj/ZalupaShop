@@ -1,0 +1,12 @@
+<%- include('partials/header') %>
+<h1>Профиль</h1>
+<div class="card">
+  <div class="card-body">
+    <p><strong>Email:</strong> <%= profile.email %></p>
+    <p><strong>Роль:</strong> <%= profile.role %></p>
+    <p><strong>Дата регистрации:</strong> <%= profile.created_at %></p>
+  </div>
+</div>
+<h3>История заказов</h3>
+<p>Пока здесь заглушка. В будущей версии будут реальные заказы.</p>
+<%- include('partials/footer') %>
